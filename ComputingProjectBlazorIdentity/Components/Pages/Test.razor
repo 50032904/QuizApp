@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@page "/test"
+
+<div class="container">
+    <div class="text-center">
+        <h1 class="pb-3">Test</h1>
+
+        <h4 class="pb-1">Take a test on the topics you have learnt here!</h4>
+
+        <h4 class="pb-1">You will be given 10 questions.</h4>
+
+        <h4 class="pb-1">Select the correct answer from the four options.</h4>
+
+        <h4 class="pb-1">Your score will be given to you at the end.</h4>
+
+        <NavLink href="test/quiz" class="text-black" style="text-decoration:none">
+            <div class="my-4 align-content-center pt-1" style="background-color:lightgray; border: 2px solid #000000">
+                <h3 class="px-2">Take the test!</h3>
+            </div>
+        </NavLink>
+    </div>
+</div>
+@code {
+
+}

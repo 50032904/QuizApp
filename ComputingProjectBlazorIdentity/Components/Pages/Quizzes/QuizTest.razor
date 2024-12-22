@@ -1,0 +1,157 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@page "/test/quiz"
+@inject ComputingProjectBlazorIdentity.Data.ApplicationDbContext DB
+@inject NavigationManager NavigationManager
+@using ComputingProjectBlazorIdentity.Models
+@using System.Security.Claims
+@rendermode InteractiveServer
+
+<div class="container">
+    <div>
+        <h1>Test - Question @numAnsweredVisual </h1>
+    </div>
+
+    <div class="text-center py-4">
+        <h1>@quizzes[quizID].Question</h1>
+    </div>
+    <div class="container text-center">
+        <div class="row justify-content-around">
+            <div id="1" class="col align-content-center col-md-4 col-11 mb-4 clickable-group pt-1" style="background-color:@ans1Color; border: 2px solid #000000" @onclick="() => CheckAnswer(answersList[0], 1)">
+                <h3>@answersList[0]</h3>
+            </div>
+
+            <div id="2" class="align-content-center col-md-4 col-11 mb-4 clickable-group pt-1" style="background-color:@ans2Color; border: 2px solid #000000" @onclick="() => CheckAnswer(answersList[1], 2)">
+                <h3>@answersList[1]</h3>
+            </div>
+        </div>
+
+        <div class="row justify-content-around">
+            <div id="3" class="col align-content-center col-md-4 col-11 mb-4 clickable-group pt-1" style="background-color:@ans3Color; border: 2px solid #000000" @onclick="() => CheckAnswer(answersList[2], 3)">
+                <h3>@answersList[2]</h3>
+            </div>
+
+            <div id="4" class="align-content-center col-md-4 col-11 mb-4 clickable-group pt-1" style="background-color:@ans4Color; border: 2px solid #000000" @onclick="() => CheckAnswer(answersList[3], 4)">
+                <h3>@answersList[3]</h3>
+            </div>
+        </div>
+
+        @if (answered == true)
+        {
+            <br />
+            <h3>@quizzes[quizID].Description</h3>
+            <div class="text-center container w-50">
+                <NavLink href="guidespage/fact-checking" class="text-black" style="text-decoration:none">
+                    <div class="my-4 align-content-center pt-1" style="background-color:lightgray; border: 2px solid #000000">
+                        <h3>Continue to the next lesson.</h3>
+                    </div>
+                </NavLink>
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+
+
+
+    private List<Quiz> quizzes;
+    private List<string> answersList;
+    private List<int> randomQuizzes;
+
+    private int quizID = 0; //IMPORTANT! CHANGE THIS TO THE ZERO INDEX FROM DB
+
+    private List<MarkupString> ansList = new List<MarkupString> { };
+    protected override void OnInitialized()
+    {
+        quizzes = DB.Quiz.ToList();
+
+        randomQuizzes = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+        Random randomQ = new Random();
+        randomQuizzes = randomQuizzes.OrderBy(item => randomQ.Next()).ToList();
+
+        quizID = randomQuizzes[0];
+
+        answersList = new List<string> { quizzes[quizID].Answer1, quizzes[quizID].Answer2, quizzes[quizID].Answer3, quizzes[quizID].Answer4 };
+        Random random = new Random();
+        answersList = answersList.OrderBy(item => random.Next()).ToList();
+
+    }
+
+
+    private string ans1Color = "lightgray";
+    private string ans2Color = "lightgray";
+    private string ans3Color = "lightgray";
+    private string ans4Color = "lightgray";
+
+
+    private Boolean answered = false;
+    private int numAnswered = 0;
+    private int numAnsweredVisual = 1;
+    private int correctAns = 0;
+
+    private async Task CheckAnswer(string answer, int id)
+    {
+        numAnswered = numAnswered + 1;
+
+
+        if (answer == quizzes[quizID].Answer1)
+        {
+            correctAns = correctAns + 1;
+            if (numAnswered == 10)
+            {
+                await AddResults();
+                NavigationManager.NavigateTo("/quiz-done");
+            } else
+            {
+                quizID = randomQuizzes[numAnswered];
+                numAnsweredVisual = numAnswered + 1;
+                randomAnswers();
+            }
+
+        }
+        else
+        {
+            if (numAnswered == 10)
+            {
+                try
+                {
+                    await AddResults();
+                }
+                catch
+                {
+                    
+                }
+                NavigationManager.NavigateTo("/quiz-done");
+            } else
+            {
+                quizID = randomQuizzes[numAnswered];
+                numAnsweredVisual = numAnswered + 1;
+                randomAnswers();
+            }
+            
+        }
+
+        
+    }
+
+    private void randomAnswers()
+    {
+        answersList = new List<string> { quizzes[quizID].Answer1, quizzes[quizID].Answer2, quizzes[quizID].Answer3, quizzes[quizID].Answer4 };
+        Random random = new Random();
+        answersList = answersList.OrderBy(item => random.Next()).ToList();
+    }
+
+    @inject IHttpContextAccessor HttpContextAccessor
+
+    protected async Task AddResults()
+    {
+        var principal = HttpContextAccessor.HttpContext.User;
+        var loggedInUserId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var quizResultItem = new QuizResult { UserId = loggedInUserId, Date = DateTime.Now, Score = correctAns };
+        DB.QuizResults.Add(quizResultItem);
+        await DB.SaveChangesAsync();
+    }
+}

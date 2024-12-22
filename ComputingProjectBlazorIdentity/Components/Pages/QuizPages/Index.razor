@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@page "/admin-page/quizzes"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject ComputingProjectBlazorIdentity.Data.ApplicationDbContext DB
+@using ComputingProjectBlazorIdentity.Models
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="quizzes/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="DB.Quiz">
+    <PropertyColumn Property="quiz => quiz.Question" />
+    <PropertyColumn Property="quiz => quiz.Answer1" />
+    <PropertyColumn Property="quiz => quiz.Answer2" />
+    <PropertyColumn Property="quiz => quiz.Answer3" />
+    <PropertyColumn Property="quiz => quiz.Answer4" />
+    <PropertyColumn Property="quiz => quiz.Description" />
+
+    <TemplateColumn Context="quiz">
+        <a href="@($"quizzes/edit?id={quiz.Id}")">Edit</a> |
+        <a href="@($"quizzes/details?id={quiz.Id}")">Details</a> |
+        <a href="@($"quizzes/delete?id={quiz.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>

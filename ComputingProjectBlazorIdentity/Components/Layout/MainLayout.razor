@@ -1,0 +1,74 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+
+<html>
+<body style="background-color:mintcream">
+    <div class="page">
+
+        <main class="flex-fill">
+            <div class="top-row justify-content-start px-5">
+                <a href="/" class="navbar-brand text-black" style="text-decoration:none">AI Guide</a>
+                <a href="/" class="hidden-md text-black">Home</a>
+                <a href="/guidespage" class="hidden-md text-black">Guides</a>
+                <a href="/resources" class="hidden-md text-black">Resources</a>
+
+                <AuthorizeView>
+                    <Authorized>
+                        <a href="/user" class="text-decoration-none text-black">@context.User.Identity?.Name</a>
+                        <form action="Account/Logout" method="post">
+                            <AntiforgeryToken />
+                            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                            <button type="submit" class="nav-link border-0 text-decoration text-black" style="background:none">
+                                <span class="" aria-hidden="true"></span> Logout
+                            </button>
+                        </form>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="/Account/Register" class="text-black">Register</a>
+                        <a href="/Account/Login" class="ps-2 text-black">Login</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+
+            </div>
+
+
+
+            <article class="content px-5">
+                @Body
+            </article>
+        </main>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+</body>
+</html>
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

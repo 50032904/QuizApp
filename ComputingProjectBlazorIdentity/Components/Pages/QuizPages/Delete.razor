@@ -1,0 +1,75 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@page "/quizzes/delete"
+@inject ComputingProjectBlazorIdentity.Data.ApplicationDbContext DB
+@using ComputingProjectBlazorIdentity.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Quiz</h4>
+    <hr />
+    @if (quiz is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Question</dt>
+            <dd class="col-sm-10">@quiz.Question</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Answer1</dt>
+            <dd class="col-sm-10">@quiz.Answer1</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Answer2</dt>
+            <dd class="col-sm-10">@quiz.Answer2</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Answer3</dt>
+            <dd class="col-sm-10">@quiz.Answer3</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Answer4</dt>
+            <dd class="col-sm-10">@quiz.Answer4</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@quiz.Description</dd>
+        </dl>
+        <EditForm method="post" Model="quiz" OnValidSubmit="DeleteQuiz" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(quiz is null)">Delete</button> |
+            <a href="/quizzes">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    Quiz? quiz;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        quiz = await DB.Quiz.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (quiz is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    public async Task DeleteQuiz()
+    {
+        DB.Quiz.Remove(quiz!);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/quizzes");
+    }
+}

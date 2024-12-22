@@ -1,0 +1,113 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@page "/Quizzes/edit"
+@inject ComputingProjectBlazorIdentity.Data.ApplicationDbContext DB
+@using ComputingProjectBlazorIdentity.Models
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>Quiz</h4>
+<hr />
+@if (Quiz is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Quiz" OnValidSubmit="UpdateQuiz" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Quiz.Id" value="@Quiz.Id" />
+                <div class="mb-3">
+                    <label for="question" class="form-label">Question:</label>
+                    <InputText id="question" @bind-Value="Quiz.Question" class="form-control" />
+                    <ValidationMessage For="() => Quiz.Question" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="answer1" class="form-label">Answer1:</label>
+                    <InputText id="answer1" @bind-Value="Quiz.Answer1" class="form-control" />
+                    <ValidationMessage For="() => Quiz.Answer1" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="answer2" class="form-label">Answer2:</label>
+                    <InputText id="answer2" @bind-Value="Quiz.Answer2" class="form-control" />
+                    <ValidationMessage For="() => Quiz.Answer2" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="answer3" class="form-label">Answer3:</label>
+                    <InputText id="answer3" @bind-Value="Quiz.Answer3" class="form-control" />
+                    <ValidationMessage For="() => Quiz.Answer3" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="answer4" class="form-label">Answer4:</label>
+                    <InputText id="answer4" @bind-Value="Quiz.Answer4" class="form-control" />
+                    <ValidationMessage For="() => Quiz.Answer4" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Quiz.Description" class="form-control" />
+                    <ValidationMessage For="() => Quiz.Description" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/quizzes">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public Quiz? Quiz { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Quiz ??= await DB.Quiz.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Quiz is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateQuiz()
+    {
+        DB.Attach(Quiz!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!QuizExists(Quiz!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/quizzes");
+    }
+
+    bool QuizExists(int id)
+    {
+        return DB.Quiz.Any(e => e.Id == id);
+    }
+}

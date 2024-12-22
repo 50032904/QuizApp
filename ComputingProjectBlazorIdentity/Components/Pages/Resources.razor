@@ -1,0 +1,39 @@
+﻿@page "/resources"
+
+<h1>Resources</h1>
+
+<h3>Try out some of the AI chatbots you have learned about!</h3>
+
+<div class="container text-center">
+    <div class="row row-cols-3">
+        <div class="col-12 col-md-4">
+            <NavLink href="https://chat.openai.com/" style="text-decoration:none">
+                    <div class="rounded-3 m-2" style="background-color:lightgray">
+                    <img src="/images/ChatGPT_logo.svg" class="w-75 mt-2 rounded-3" />
+                    <h5 class="text-black mb-1 py-1">ChatGPT</h5>
+                </div>
+            </NavLink>
+        </div>
+        <div class="col-12 col-md-4">
+            <NavLink href="https://copilot.microsoft.com/" style="text-decoration:none">
+                <div class="rounded-3 m-2" style="background-color:lightgray">
+                    <img src="/images/Microsoft_365_Copilot_Icon.svg" class="w-75 mt-2 rounded-3" />
+                    <h5 class="text-black mb-1 py-1">Microsoft Copilot</h5>
+                </div>
+            </NavLink>
+        </div>
+        <div class="col-12 col-md-4">
+            <NavLink href="https://gemini.google.com/" style="text-decoration:none">
+                <div class="rounded-3 m-2" style="background-color:lightgray">
+                    <img src="/images/gemini_wordmark_landing_page_238102af073d0ae2763aa5.svg" class="w-75 mt-2 rounded-3" style="aspect-ratio: 1 / 1; object-fit: scale-down;" />
+                    <h5 class="text-black mb-1 py-1">Google Gemini</h5>
+                </div>
+            </NavLink>
+        </div>
+    </div>
+    <p class="pt-2">Note: These are offsite links. The owner is not responsible for the content of these services.</p>
+</div>
+
+@code {
+
+}

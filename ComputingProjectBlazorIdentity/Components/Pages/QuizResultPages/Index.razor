@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@page "/admin-page/quiz-results"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject ComputingProjectBlazorIdentity.Data.ApplicationDbContext DB
+@using ComputingProjectBlazorIdentity.Models
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="quizresults/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="DB.QuizResults">
+    <PropertyColumn Property="quizresult => quizresult.UserId" />
+    <PropertyColumn Property="quizresult => quizresult.Date" />
+    <PropertyColumn Property="quizresult => quizresult.Score" />
+
+    <TemplateColumn Context="quizresult">
+        <a href="@($"quizresults/edit?id={quizresult.Id}")">Edit</a> |
+        <a href="@($"quizresults/details?id={quizresult.Id}")">Details</a> |
+        <a href="@($"quizresults/delete?id={quizresult.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
